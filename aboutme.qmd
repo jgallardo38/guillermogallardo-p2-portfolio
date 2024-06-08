@@ -2,6 +2,26 @@
 title: "About me"
 ---
 
-Add some text and a figure describing myself.
+## Who am I?
 
-For details, see the exercise instructions. 
+> My name is Guillermo, originally from Monterrey, Mexico. I moved to the US back in 2008, and it has been quite a ride. I graduated with a Finance degree from UTSA in 2014, and now I am enrolled in the MSDA program, also at UTSA. After the last crazy semester, I am counting down the days until graduation (Spring 2025) to be done with my school life forever. When I am not at work or school, I enjoy mountain biking, running, and going to music events.
+
+## Professional Background
+
+> I've recently taken on the role of Financial Analyst with HEB's Organizational Design team within the Corporate HR department. Prior to joining HEB, I gained valuable experience in various positions:
+>
+> -   At iHeartMedia, I served as a People Analyst, where I provided valuable insights and recommendations to help leadership gauge the health of the workforce.
+>
+> -   At RBFCU, I worked as a Business Risk Analyst in the Consumer Lending department, refining my skills in risk assessment and analysis.
+>
+> -   My career began at Rackspace, where I worked as a People Analytics Specialist. It was here that I discovered my passion for the field and laid the foundation for my career trajectory.
+>
+> Throughout my experience in this program, I have developed proficiency in various programming languages and tools, such as Python, SQL, SAS Enterprise Guide, R, and Tableau. My goal for this course is to strengthen my R skills to improve my analytical capabilities and apply these tools and techniques effectively in my current role.
+
+## Data Analysis Material
+
+> After conducting extensive research, I came across this interesting image depicting data analysis. Please let me know if you have any questions.
+>
+> **Click here: [Data Analysis](https://analyticsindiamag.com/wp-content/uploads/2017/06/ea8853d740994d7a23b587d20033c262.jpg)**
+
+![](Foto%20Perfil.jpg){width="318"}

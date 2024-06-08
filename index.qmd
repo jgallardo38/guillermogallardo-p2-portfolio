@@ -2,14 +2,18 @@
 title: "My website and data analysis portfolio"
 ---
 
-# Hello
+# Hello Everyone!
 
-### And hello again
+I'm excited to introduce you to my website, created as part of my DA6833 Practicum II course at UTSA. Here's what you'll find:
 
-Welcome to **my website** and _data analysis portfolio._ 
+-   About Me
+    -   Who am I?
+    -   Professional Background
+    -   Additional Material
+-   Projects
+    -   Starter Analysis
+    -   R Coding
+    -   Presentation Exercise
+    -   Tidy Tuesday
 
-
-* Please use the `Menu Bar` above to look around.
-* Have fun!
-
-**Feel free to change this text any way you want 😁!**
+**Thank you for exploring my site and if you have any questions feel free to reach out via [LinkedIn](https://www.linkedin.com/in/jgallardo38)**.
