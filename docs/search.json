@@ -130,7 +130,7 @@
     "href": "starter-analysis-exercise/products/report/starter-analysis-report.html#description-of-data-and-data-source",
     "title": "Manuscript/Report Template for a Data Analysis Project",
     "section": "2.2 Description of data and data source",
-    "text": "2.2 Description of data and data source\nDescribe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section."
+    "text": "2.2 Description of data and data source\nIn the “exampledata2.xlsx” file, I’ve included two additional columns. The first column represents age, spanning from 18 to 60 years old. The second column represents ethnicity, featuring options such as White, Black/African American, and Hispanic."
   },
   {
     "objectID": "starter-analysis-exercise/products/report/starter-analysis-report.html#questionshypotheses-to-be-addressed",

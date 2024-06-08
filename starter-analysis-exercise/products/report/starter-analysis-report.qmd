@@ -39,7 +39,7 @@ _Write a summary of your project._
 _Provide enough background on your topic that others can understand the why and how of your analysis_ 
 
 ## Description of data and data source
-_Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section._
+In the "exampledata2.xlsx" file, I've included two additional columns. The first column represents age, spanning from 18 to 60 years old. The second column represents ethnicity, featuring options such as White, Black/African American, and Hispanic.
 
 ## Questions/Hypotheses to be addressed
 _State the research questions you plan to answer with this analysis._
