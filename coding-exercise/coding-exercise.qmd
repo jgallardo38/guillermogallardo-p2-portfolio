@@ -215,4 +215,64 @@ summary(lm2)
 
 **After running the linear model, we can see the p-value of 0.6159 which is above our 0.05 significance level. We do not reject the null hypothesis, and this suggest there is not linear relationship between infant mortality and life expectancy.**
 
+# This section contributed by Benjamin Farias
 
+## Summary of dataset
+
+```{r}
+# Get an understanding of the structure of the data
+str(mice_weights)
+```
+```{r}
+# Get summary statistics
+summary(mice_weights)
+```
+
+## Processing
+
+```{r}
+# Finding which generation had the most observations
+mice_weights %>% count(gen)
+```
+
+```{r}
+# Filtering for only the generation with the most observations (11)
+mice_weights11 <- mice_weights %>% filter(gen==11)
+```
+
+
+## Exploratory figures
+
+```{r}
+# Plotting the weight against bone density.
+plot(mice_weights11$bone_density, mice_weights11$body_weight)
+```
+
+```{r}
+# Plotting the weight against the percent fat
+plot(mice_weights11$percent_fat, mice_weights11$body_weight)
+```
+
+## Models
+
+```{r}
+# Creating a linear model for weight by bone density
+m1 <- lm(body_weight ~ bone_density, data = mice_weights11)
+
+# Creating a linear model for weight by percent fat
+m2 <- lm(body_weight ~ percent_fat, data = mice_weights11)
+```
+
+```{r}
+# Summary of the weight by bone density model
+summary(m1)
+```
+
+```{r}
+# Summary of the weight by percent fat model
+summary(m2)
+```
+
+## Summary
+
+Both models have a p-value below .05 meaning there are statistically significant linear relations between weight and both percent fat and bone density; however, the percent fat model has a higher r-squared meaning the model represents more of the data.
