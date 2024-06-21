@@ -586,6 +586,148 @@ F-statistic: 0.2549 on 1 and 49 DF,  p-value: 0.6159</code></pre>
 <section id="conclusion-1" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion-1">Conclusion</h2>
 <p><strong>After running the linear model, we can see the p-value of 0.6159 which is above our 0.05 significance level. We do not reject the null hypothesis, and this suggest there is not linear relationship between infant mortality and life expectancy.</strong></p>
+</section>
+</section>
+<section id="this-section-contributed-by-benjamin-farias" class="level1">
+<h1>This section contributed by Benjamin Farias</h1>
+<section id="summary-of-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-dataset">Summary of dataset</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get an understanding of the structure of the data</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(mice_weights)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   780 obs. of  7 variables:
+ $ body_weight : num  27.6 23 28.7 32.6 28.6 ...
+ $ bone_density: num  0.616 0.769 0.684 0.644 0.53 ...
+ $ percent_fat : num  7.26 4.95 6.02 9.54 6.99 ...
+ $ sex         : Factor w/ 2 levels "F","M": 1 1 1 1 1 1 1 1 1 1 ...
+ $ diet        : Factor w/ 2 levels "chow","hf": 1 1 1 1 1 1 1 1 1 1 ...
+ $ gen         : Factor w/ 5 levels "4","7","8","9",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ litter      : Factor w/ 2 levels "1","2": 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get summary statistics</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mice_weights)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  body_weight     bone_density     percent_fat     sex       diet     gen     
+ Min.   :18.13   Min.   :0.2708   Min.   : 2.552   F:398   chow:394   4 : 97  
+ 1st Qu.:28.09   1st Qu.:0.4888   1st Qu.: 5.566   M:382   hf  :386   7 :195  
+ Median :32.98   Median :0.5643   Median : 8.276                      8 :193  
+ Mean   :34.08   Mean   :0.5697   Mean   : 8.594                      9 : 97  
+ 3rd Qu.:39.37   3rd Qu.:0.6373   3rd Qu.:10.926                      11:198  
+ Max.   :65.15   Max.   :0.9980   Max.   :22.154                              
+                 NA's   :4        NA's   :4                                   
+ litter 
+ 1:442  
+ 2:338  
+        
+        
+        
+        
+        </code></pre>
+</div>
+</div>
+</section>
+<section id="processing" class="level2">
+<h2 class="anchored" data-anchor-id="processing">Processing</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Finding which generation had the most observations</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>mice_weights <span class="sc">%&gt;%</span> <span class="fu">count</span>(gen)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  gen   n
+1   4  97
+2   7 195
+3   8 193
+4   9  97
+5  11 198</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtering for only the generation with the most observations (11)</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>mice_weights11 <span class="ot">&lt;-</span> mice_weights <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gen<span class="sc">==</span><span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="exploratory-figures" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-figures">Exploratory figures</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the weight against bone density.</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mice_weights11<span class="sc">$</span>bone_density, mice_weights11<span class="sc">$</span>body_weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the weight against the percent fat</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mice_weights11<span class="sc">$</span>percent_fat, mice_weights11<span class="sc">$</span>body_weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="models" class="level2">
+<h2 class="anchored" data-anchor-id="models">Models</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a linear model for weight by bone density</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(body_weight <span class="sc">~</span> bone_density, <span class="at">data =</span> mice_weights11)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a linear model for weight by percent fat</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(body_weight <span class="sc">~</span> percent_fat, <span class="at">data =</span> mice_weights11)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the weight by bone density model</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = body_weight ~ bone_density, data = mice_weights11)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.3057  -5.1214  -0.4921   5.5928  18.6938 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    21.515      2.485   8.659 1.79e-15 ***
+bone_density   23.118      4.181   5.530 1.02e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 7.2 on 195 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.1356,    Adjusted R-squared:  0.1311 
+F-statistic: 30.58 on 1 and 195 DF,  p-value: 1.021e-07</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the weight by percent fat model</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = body_weight ~ percent_fat, data = mice_weights11)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.3577  -4.8785  -0.8575   4.8792  17.7825 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  23.6096     1.2210  19.336   &lt;2e-16 ***
+percent_fat   1.3436     0.1345   9.993   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 6.297 on 195 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.3387,    Adjusted R-squared:  0.3353 
+F-statistic: 99.86 on 1 and 195 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Both models have a p-value below .05 meaning there are statistically significant linear relations between weight and both percent fat and bone density; however, the percent fat model has a higher r-squared meaning the model represents more of the data.</p>
 
 
 </section>
