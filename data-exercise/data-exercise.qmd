@@ -1,0 +1,207 @@
+---
+title: "All About Data Assignment"
+---
+
+
+# Introduction
+
+In this exercise, we will utilize the Gutenberg Project library to extract text from public domain works. Our objective is to analyze complex data, such as text, and create visualizations, such as word clouds and bar plots, to gain deeper insights into the vocabulary and themes present in these public domain works. Below, I'll provide more details on using a lexicon package for sentiment analysis.
+
+## Loading Libraries
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidytext)
+library(tidyr)
+library(ggplot2)
+library(textdata) #sentiment lexicons for word classification and analysis
+library(gutenbergr) #provides public domain works
+library(wordcloud2) #to help us create a wordcloud
+```
+
+# Loading Data
+
+As previously mentioned, we are utilizing the gutenbergr library to extract public domain works. The following code demonstrates how we can download works by the author *Lodovico Ariosto*, chosen randomly. We will proceed by selecting and downloading one of his works to extract its text.
+
+## The code below helps us find the author's work 
+```{r, message=FALSE, warning=FALSE}
+gutenberg_works(author == "Ariosto, Lodovico") #filter by autho
+```
+
+## Downloading work based on their gutenberg ID
+```{r, message=FALSE, warning=FALSE}
+l_text = gutenberg_download(615) %>% #downloading and selecting only the text
+  select(text)
+```
+
+# Basic Discovery
+
+## Data Class
+
+The class for our new variable containing the author's work is a data.frame.
+```{r}
+class(l_text)
+```
+
+## Data Summary
+
+The new variable contains characters and its length is 48,932 observations with only one variable.
+```{r}
+summary(l_text)
+```
+
+## Review Data
+
+This is just a quick example of what the observations in this new variable look like.
+```{r}
+head(l_text, 10)
+```
+
+# Data Cleaning
+
+## Tokenize 
+
+In the initial stage, we tokenize the text to facilitate easier analysis by breaking it down into individual words and creating a new row for each word. After tokenizing the text, we group each word to display its frequency within the text.
+```{r}
+token_text = l_text %>%
+  unnest_tokens(word, text) %>% #tokenize
+  count(word, sort = TRUE) #counting frequency of words
+
+```
+
+### Output for token_text variable
+
+In this code snippet, we observe the top 10 words after we tokenize the text. It's evident that these words are stop words, which typically lack significant meaning or insights. Our next step will be to remove these stop words to proceed with our analysis.
+```{r}
+head(token_text,10)
+```
+
+## Filtering Stop Words
+
+After applying the stop word filter, the remaining words appear more significant. This filtering process can assist in identifying the most common words, and enhancing our understanding of the most common vocabulary used throughout the text.
+```{r}
+clean_text = token_text %>% #passing the tokenized variable to filter
+  filter(!word %in% stop_words$word) %>% #filtering stop words
+  arrange(desc(n)) #descending sort
+
+head(clean_text, 10)
+```
+
+
+### Filtering for Positive Words
+
+We will now utilize the *textdata* package, which provides diverse lexicons and labeled text datasets for classification and analysis purposes. This package will enable us to examine the cleaned text from earlier and identify all positive and negative words. Using this library simplifies the identification of these words, but its drawback lies in limited flexibility and potential omissions.
+```{r, message=FALSE, error=FALSE}
+afinn = get_sentiments("afinn") #found this lexicon for sentiment analysis
+positive_text = clean_text %>%
+  inner_join(afinn) %>%    #joining the lexicon with our clean data
+  filter(value > 0) %>%  #filter words that a negative value which mean their sentiment is negative
+  arrange(desc(value)) #Arrange by descending frequency
+
+head(positive_text, 10) # View top positive words
+```
+
+
+### Filtering for Negative Words
+```{r}
+afinn = get_sentiments("afinn") #found this lexicon for sentiment analysis
+negative_text = clean_text %>%
+  inner_join(afinn) %>% #joining the lexicon with our clean data
+  filter(value < 0) %>% #filter words that have a positive value which mean their sentiment is positive
+  arrange(desc(n)) #Arrange by descending frequency
+
+head(negative_text, 10) # View top negative words
+```
+
+
+### List of Words with their Sentiment
+
+The following code helps us generate a data frame displaying the counts of positive and negative words. This data will be used to create a bar chart illustrating the disparity in counts between the two sentiments. This code resembles the previous example but introduces a new column to aggregate the total counts of positive and negative words.
+```{r}
+afinn = get_sentiments("afinn") #found this lexicon for sentiment analysis
+word_sentiment = clean_text %>% #creating variable for all words that have a sentiment
+  inner_join(afinn) %>% #joining the lexicon with our clean data
+    mutate(sentiment = case_when(value >= 1 ~ "Positive",
+                               value <= -1 ~"Negative")) %>% #creating label based on value
+  count(sentiment)
+
+head(word_sentiment)
+```
+
+
+
+# Word Clouds
+
+
+## Positive Word Cloud
+
+Generating a word cloud does not provide insight into the overall sentiment and may not contribute significantly to analysis. However, it offers an intriguing method to visualize the most frequent words in a text. 
+```{r}
+positive_cloud = positive_text %>%
+  select(word, n) %>%
+  arrange(desc(n))  # Arrange by descending sentiment value (if needed)
+
+
+positive_cloudF <- wordcloud2(data = positive_cloud, size = 1.25, backgroundColor = "white") # Convert to HTML widget for use with ggplot2
+
+positive_cloudF
+```
+
+
+## Negative Word Cloud
+
+This negative word cloud helps visualize the most frequently used words in the text, highlighting the darker tone of the content.
+```{r}
+negative_cloud = negative_text %>%
+  select(word, n) %>%
+  arrange(desc(n))  # Arrange by descending sentiment value (if needed)
+
+
+negative_cloudF <- wordcloud2(data = negative_cloud, size = 1.25, backgroundColor = "white") # Convert to HTML widget for use with ggplot2
+
+negative_cloudF
+```
+
+
+## All Text Word Cloud
+
+In the word cloud below, I'm using the entire cleaned text (excluding stop words) to visualize the most frequent words, disregarding their sentiment values.
+```{r}
+all_cloud = clean_text %>%
+  select(word, n) %>%
+  arrange(desc(n))  # Arrange by descending sentiment value (if needed)
+
+
+all_cloudF <- wordcloud2(data = all_cloud, size = 1.25, backgroundColor = "white") # Convert to HTML widget for use with ggplot2
+
+all_cloudF
+```
+
+
+# Additional Plots
+
+Lastly, I wanted to visualize a straightforward bar chart comparing the frequency of positive words to negative words, revealing a huge difference between the two sentiments in the text. It's worth noting that the lexicon package utilized has a limited word set, which may influence the accuracy of these findings."
+```{r, warning=FALSE}
+ggplot(word_sentiment, aes(x = sentiment, y = n, fill = sentiment)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Positive vs Negative Sentiment", x = "", y = "# Words") +
+  scale_fill_manual(values = c("Positive" = "#448412", "Negative" = "#412354"), guide = FALSE) + #choosing colors at random
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(face = "bold")) #adjusting title to the middle and bolding x axis labels
+  
+
+```
+
+
+# Please let me know if you have any questions.
+
+
+
+
+
+
+
+
+
+
+
+

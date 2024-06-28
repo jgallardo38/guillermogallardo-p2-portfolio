@@ -238,6 +238,90 @@
     "text": "Summary\nBoth models have a p-value below .05 meaning there are statistically significant linear relations between weight and both percent fat and bone density; however, the percent fat model has a higher r-squared meaning the model represents more of the data."
   },
   {
+    "objectID": "data-exercise/data-exercise.html",
+    "href": "data-exercise/data-exercise.html",
+    "title": "All About Data Assignment",
+    "section": "",
+    "text": "In this exercise, we will utilize the Gutenberg Project library to extract text from public domain works. Our objective is to analyze complex data, such as text, and create visualizations, such as word clouds and bar plots, to gain deeper insights into the vocabulary and themes present in these public domain works. Below, I’ll provide more details on using a lexicon package for sentiment analysis.\n\n\n\nlibrary(dplyr)\nlibrary(tidytext)\nlibrary(tidyr)\nlibrary(ggplot2)\nlibrary(textdata) #sentiment lexicons for word classification and analysis\nlibrary(gutenbergr) #provides public domain works\nlibrary(wordcloud2) #to help us create a wordcloud"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#loading-libraries",
+    "href": "data-exercise/data-exercise.html#loading-libraries",
+    "title": "All About Data Assignment",
+    "section": "",
+    "text": "library(dplyr)\nlibrary(tidytext)\nlibrary(tidyr)\nlibrary(ggplot2)\nlibrary(textdata) #sentiment lexicons for word classification and analysis\nlibrary(gutenbergr) #provides public domain works\nlibrary(wordcloud2) #to help us create a wordcloud"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#the-code-below-helps-us-find-the-authors-work",
+    "href": "data-exercise/data-exercise.html#the-code-below-helps-us-find-the-authors-work",
+    "title": "All About Data Assignment",
+    "section": "The code below helps us find the author’s work",
+    "text": "The code below helps us find the author’s work\n\ngutenberg_works(author == \"Ariosto, Lodovico\") #filter by autho\n\n# A tibble: 1 × 8\n  gutenberg_id title     author gutenberg_author_id language gutenberg_bookshelf\n         &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;                &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;              \n1          615 Orlando … Arios…                 322 en       \"\"                 \n# ℹ 2 more variables: rights &lt;chr&gt;, has_text &lt;lgl&gt;"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#downloading-work-based-on-their-gutenberg-id",
+    "href": "data-exercise/data-exercise.html#downloading-work-based-on-their-gutenberg-id",
+    "title": "All About Data Assignment",
+    "section": "Downloading work based on their gutenberg ID",
+    "text": "Downloading work based on their gutenberg ID\n\nl_text = gutenberg_download(615) %&gt;% #downloading and selecting only the text\n  select(text)"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#data-class",
+    "href": "data-exercise/data-exercise.html#data-class",
+    "title": "All About Data Assignment",
+    "section": "Data Class",
+    "text": "Data Class\nThe class for our new variable containing the author’s work is a data.frame.\n\nclass(l_text)\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\""
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#data-summary",
+    "href": "data-exercise/data-exercise.html#data-summary",
+    "title": "All About Data Assignment",
+    "section": "Data Summary",
+    "text": "Data Summary\nThe new variable contains characters and its length is 48,932 observations with only one variable.\n\nsummary(l_text)\n\n     text          \n Length:48932      \n Class :character  \n Mode  :character"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#review-data",
+    "href": "data-exercise/data-exercise.html#review-data",
+    "title": "All About Data Assignment",
+    "section": "Review Data",
+    "text": "Review Data\nThis is just a quick example of what the observations in this new variable look like.\n\nhead(l_text, 10)\n\n# A tibble: 10 × 1\n   text                   \n   &lt;chr&gt;                  \n 1 \"Orlando Furioso\"      \n 2 \"\"                     \n 3 \"(\\\"Orlando Enraged\\\")\"\n 4 \"\"                     \n 5 \"\"                     \n 6 \"By\"                   \n 7 \"\"                     \n 8 \"Ludovico Ariosto\"     \n 9 \"\"                     \n10 \"(1474-1533)\""
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#tokenize",
+    "href": "data-exercise/data-exercise.html#tokenize",
+    "title": "All About Data Assignment",
+    "section": "Tokenize",
+    "text": "Tokenize\nIn the initial stage, we tokenize the text to facilitate easier analysis by breaking it down into individual words and creating a new row for each word. After tokenizing the text, we group each word to display its frequency within the text.\n\ntoken_text = l_text %&gt;%\n  unnest_tokens(word, text) %&gt;% #tokenize\n  count(word, sort = TRUE) #counting frequency of words\n\n\nOutput for token_text variable\nIn this code snippet, we observe the top 10 words after we tokenize the text. It’s evident that these words are stop words, which typically lack significant meaning or insights. Our next step will be to remove these stop words to proceed with our analysis.\n\nhead(token_text,10)\n\n# A tibble: 10 × 2\n   word      n\n   &lt;chr&gt; &lt;int&gt;\n 1 the   16563\n 2 and   12447\n 3 to     7625\n 4 in     5309\n 5 of     5093\n 6 his    5030\n 7 that   4803\n 8 he     4340\n 9 with   4014\n10 a      3567"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#filtering-stop-words",
+    "href": "data-exercise/data-exercise.html#filtering-stop-words",
+    "title": "All About Data Assignment",
+    "section": "Filtering Stop Words",
+    "text": "Filtering Stop Words\nAfter applying the stop word filter, the remaining words appear more significant. This filtering process can assist in identifying the most common words, and enhancing our understanding of the most common vocabulary used throughout the text.\n\nclean_text = token_text %&gt;% #passing the tokenized variable to filter\n  filter(!word %in% stop_words$word) %&gt;% #filtering stop words\n  arrange(desc(n)) #descending sort\n\nhead(clean_text, 10)\n\n# A tibble: 10 × 2\n   word       n\n   &lt;chr&gt;  &lt;int&gt;\n 1 king     636\n 2 rogero   585\n 3 thou     528\n 4 knight   507\n 5 fair     506\n 6 day      493\n 7 love     410\n 8 thy      410\n 9 thee     408\n10 arms     366\n\n\n\nFiltering for Positive Words\nWe will now utilize the textdata package, which provides diverse lexicons and labeled text datasets for classification and analysis purposes. This package will enable us to examine the cleaned text from earlier and identify all positive and negative words. Using this library simplifies the identification of these words, but its drawback lies in limited flexibility and potential omissions.\n\nafinn = get_sentiments(\"afinn\") #found this lexicon for sentiment analysis\npositive_text = clean_text %&gt;%\n  inner_join(afinn) %&gt;%    #joining the lexicon with our clean data\n  filter(value &gt; 0) %&gt;%  #filter words that a negative value which mean their sentiment is negative\n  arrange(desc(value)) #Arrange by descending frequency\n\nhead(positive_text, 10) # View top positive words\n\n# A tibble: 10 × 3\n   word           n value\n   &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt;\n 1 win           39     4\n 2 heavenly      23     4\n 3 rejoiced      19     4\n 4 rejoicing     11     4\n 5 wins          10     4\n 6 miracle        9     4\n 7 triumph        7     4\n 8 winning        6     4\n 9 triumphant     5     4\n10 rejoice        4     4\n\n\n\n\nFiltering for Negative Words\n\nafinn = get_sentiments(\"afinn\") #found this lexicon for sentiment analysis\nnegative_text = clean_text %&gt;%\n  inner_join(afinn) %&gt;% #joining the lexicon with our clean data\n  filter(value &lt; 0) %&gt;% #filter words that have a positive value which mean their sentiment is positive\n  arrange(desc(n)) #Arrange by descending frequency\n\nJoining with `by = join_by(word)`\n\nhead(negative_text, 10) # View top negative words\n\n# A tibble: 10 × 3\n   word      n value\n   &lt;chr&gt; &lt;int&gt; &lt;dbl&gt;\n 1 ill     353    -2\n 2 sore    260    -1\n 3 death   219    -2\n 4 cruel   212    -3\n 5 fight   199    -1\n 6 bore    198    -2\n 7 fear    198    -2\n 8 pain    190    -2\n 9 evil    165    -3\n10 cried   157    -2\n\n\n\n\nList of Words with their Sentiment\nThe following code helps us generate a data frame displaying the counts of positive and negative words. This data will be used to create a bar chart illustrating the disparity in counts between the two sentiments. This code resembles the previous example but introduces a new column to aggregate the total counts of positive and negative words.\n\nafinn = get_sentiments(\"afinn\") #found this lexicon for sentiment analysis\nword_sentiment = clean_text %&gt;% #creating variable for all words that have a sentiment\n  inner_join(afinn) %&gt;% #joining the lexicon with our clean data\n    mutate(sentiment = case_when(value &gt;= 1 ~ \"Positive\",\n                               value &lt;= -1 ~\"Negative\")) %&gt;% #creating label based on value\n  count(sentiment)\n\nJoining with `by = join_by(word)`\n\nhead(word_sentiment)\n\n# A tibble: 2 × 2\n  sentiment     n\n  &lt;chr&gt;     &lt;int&gt;\n1 Negative    685\n2 Positive    423"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#positive-word-cloud",
+    "href": "data-exercise/data-exercise.html#positive-word-cloud",
+    "title": "All About Data Assignment",
+    "section": "Positive Word Cloud",
+    "text": "Positive Word Cloud\nGenerating a word cloud does not provide insight into the overall sentiment and may not contribute significantly to analysis. However, it offers an intriguing method to visualize the most frequent words in a text.\n\npositive_cloud = positive_text %&gt;%\n  select(word, n) %&gt;%\n  arrange(desc(n))  # Arrange by descending sentiment value (if needed)\n\n\npositive_cloudF &lt;- wordcloud2(data = positive_cloud, size = 1.25, backgroundColor = \"white\") # Convert to HTML widget for use with ggplot2\n\npositive_cloudF"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#negative-word-cloud",
+    "href": "data-exercise/data-exercise.html#negative-word-cloud",
+    "title": "All About Data Assignment",
+    "section": "Negative Word Cloud",
+    "text": "Negative Word Cloud\nThis negative word cloud helps visualize the most frequently used words in the text, highlighting the darker tone of the content.\n\nnegative_cloud = negative_text %&gt;%\n  select(word, n) %&gt;%\n  arrange(desc(n))  # Arrange by descending sentiment value (if needed)\n\n\nnegative_cloudF &lt;- wordcloud2(data = negative_cloud, size = 1.25, backgroundColor = \"white\") # Convert to HTML widget for use with ggplot2\n\nnegative_cloudF"
+  },
+  {
+    "objectID": "data-exercise/data-exercise.html#all-text-word-cloud",
+    "href": "data-exercise/data-exercise.html#all-text-word-cloud",
+    "title": "All About Data Assignment",
+    "section": "All Text Word Cloud",
+    "text": "All Text Word Cloud\nIn the word cloud below, I’m using the entire cleaned text (excluding stop words) to visualize the most frequent words, disregarding their sentiment values.\n\nall_cloud = clean_text %&gt;%\n  select(word, n) %&gt;%\n  arrange(desc(n))  # Arrange by descending sentiment value (if needed)\n\n\nall_cloudF &lt;- wordcloud2(data = all_cloud, size = 1.25, backgroundColor = \"white\") # Convert to HTML widget for use with ggplot2\n\nall_cloudF"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "My website and data analysis portfolio",
