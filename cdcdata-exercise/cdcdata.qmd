@@ -1,0 +1,147 @@
+---
+title: "Data Analysis Exercise"
+---
+
+# About the dataset
+
+This dataset records the number of confirmed botulism cases per state each year, along with details on transmission and toxin types from 1899 to 2017. Botulism is a rare yet severe illness caused by toxins produced by Clostridium botulinum bacteria, leading to muscle weakness, paralysis, and potentially life-threatening breathing problems. Updates are provided annually by the Alaska Division of Public Health and California Department of Public Health.
+
+The data was obtained from the CDC's website and is available at this link: [**Botulism CDC**](https://data.cdc.gov/Foodborne-Waterborne-and-Related-Diseases/Botulism/66i6-hisz/about_data).
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(here)
+library(readr)
+suppressPackageStartupMessages(library(tidyverse))
+```
+
+# Loading Data
+
+```{r}
+botulism = here::here("cdcdata-exercise","data","Botulism.csv") #setting path
+bot = read.csv(botulism)
+```
+
+# Understading The Dataset
+
+This dataset includes 2,280 observations and 5 variables, meeting the assignment's requirements. Upon review, no outliers were found and I did find NA's in the state variable which required processing. However, for this exercise, analysis will focus exclusively on the last ten years (2008-2017).
+
+## Data Structure
+
+```{r}
+str(bot) #structure of data to understand what this dataset contains
+```
+
+## Data Summary
+
+```{r}
+summary(bot) #basic summary of data
+```
+
+# Processing Data
+
+As mentioned earlier, I will focus on the dataset's last 10 years. There were 16 missing values which were removed due to a missing state.
+
+## Filtering for 10 years
+```{r}
+bot_10years = bot %>% 
+  filter(Year %in% 2008:2017,
+         !is.na(State))
+```
+
+### New Data Structure
+
+We now have 494 observations and 5 variables.
+```{r}
+str(bot_10years)
+```
+ 
+### New Data Summary
+```{r}
+summary(bot_10years)
+```
+
+
+## Grouping by Year
+
+This code groups the data by year to visualize the total number of confirmed cases each year and determine which year had the highest occurrences of Botulism.
+
+```{r}
+group_year = bot_10years %>% 
+  group_by(Year) %>%
+  summarize(total_cases = sum(Count)) %>% 
+  mutate(percentage_of_total = round((total_cases / sum(total_cases)) * 100, 2))
+
+group_year
+```
+
+## Grouping by State
+
+Similarly to the previous code, we are grouping by state to determine which state had the highest occurrence of Botulism.
+```{r}
+group_state = bot_10years %>% 
+  group_by(State) %>%
+  filter(!is.na(State)) %>% #Removing NAs
+  summarize(total_cases = sum(Count)) %>% #adding all the counts of confirmed cases by state
+  arrange(desc(total_cases))  %>% 
+  mutate(percentage_of_total = round((total_cases / sum(total_cases)) * 100, 2))
+
+head(group_state) #getting top 6 states
+
+```
+
+
+## Grouping by Botulism Transmission Type
+
+Lastly, we want to identify the most common transmission type for this disease.
+```{r}
+group_trans = bot_10years %>% 
+  group_by(BotType) %>%
+  summarize(total_cases = sum(Count)) %>% 
+  arrange(desc(total_cases))  %>% 
+  mutate(percentage_of_total = round((total_cases / sum(total_cases)) * 100, 2))
+
+group_trans
+```
+
+
+# Plotting Botulism
+
+## Botulism by Year
+
+This line chart illustrates a rising trend in Botulism cases beginning from 2010, which marked the lowest point on the graph (113 cases). The peak occurred in 2016, with 206 confirmed cases. Next, we will examine the states with the highest impact in the following chart.
+```{r}
+ggplot(group_year, aes(x = Year, y = total_cases)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Botulism Cases by Year", y = "# of Confirmed Cases") +
+  theme_minimal() +
+  scale_x_continuous(breaks = unique(group_year$Year))
+  
+```
+
+## Botulism by State
+
+California stands out as the state with the highest number of confirmed Botulism cases, totaling 545, which accounts for more than half (56%) of all cases. This highlights California's significant impact on the overall number of confirmed cases.
+```{r}
+ggplot(group_state, aes(reorder(x = State, desc(total_cases)), y = total_cases)) +
+  geom_col(fill = "skyblue") +
+  labs(title = "Botulism Cases by State", x = "State", y = "# of Confirmed Cases") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  #scale_x_continuous(breaks = unique(group_year$Year))
+
+```
+
+
+## Botulism by Transmission Type
+
+In the last 10 years, infants have accounted for the highest proportion of transmissions, comprising 76% of all cases.
+```{r}
+ggplot(group_trans, aes(x = BotType, y = total_cases)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Botulism Cases by Transmission Type", y = "# of Confirmed Cases") +
+  theme_minimal()
+  #scale_x_continuous(breaks = unique(group_year$Year))
+```
+
+
+

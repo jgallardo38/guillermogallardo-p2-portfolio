@@ -28,6 +28,76 @@
     "text": "Data Analysis Material\n\nAfter conducting extensive research, I came across this interesting image depicting data analysis. Please let me know if you have any questions/feedback.\nClick here: Data Analysis"
   },
   {
+    "objectID": "cdcdata-exercise/cdcdata.html",
+    "href": "cdcdata-exercise/cdcdata.html",
+    "title": "Data Analysis Exercise",
+    "section": "",
+    "text": "This dataset records the number of confirmed botulism cases per state each year, along with details on transmission and toxin types from 1899 to 2017. Botulism is a rare yet severe illness caused by toxins produced by Clostridium botulinum bacteria, leading to muscle weakness, paralysis, and potentially life-threatening breathing problems. Updates are provided annually by the Alaska Division of Public Health and California Department of Public Health.\nThe data was obtained from the CDC’s website and is available at this link: Botulism CDC."
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#data-structure",
+    "href": "cdcdata-exercise/cdcdata.html#data-structure",
+    "title": "Data Analysis Exercise",
+    "section": "Data Structure",
+    "text": "Data Structure\n\nstr(bot) #structure of data to understand what this dataset contains\n\n'data.frame':   2280 obs. of  5 variables:\n $ State    : chr  \"Alaska\" \"Alaska\" \"Alaska\" \"Alaska\" ...\n $ Year     : int  1947 1948 1950 1952 1956 1959 1960 1967 1968 1970 ...\n $ BotType  : chr  \"Foodborne\" \"Foodborne\" \"Foodborne\" \"Foodborne\" ...\n $ ToxinType: chr  \"Unknown\" \"Unknown\" \"E\" \"E\" ...\n $ Count    : int  3 4 5 1 5 10 2 1 1 1 ..."
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#data-summary",
+    "href": "cdcdata-exercise/cdcdata.html#data-summary",
+    "title": "Data Analysis Exercise",
+    "section": "Data Summary",
+    "text": "Data Summary\n\nsummary(bot) #basic summary of data\n\n    State                Year        BotType           ToxinType        \n Length:2280        Min.   :1899   Length:2280        Length:2280       \n Class :character   1st Qu.:1976   Class :character   Class :character  \n Mode  :character   Median :1993   Mode  :character   Mode  :character  \n                    Mean   :1986                                        \n                    3rd Qu.:2006                                        \n                    Max.   :2017                                        \n     Count       \n Min.   : 1.000  \n 1st Qu.: 1.000  \n Median : 1.000  \n Mean   : 3.199  \n 3rd Qu.: 3.000  \n Max.   :59.000"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#filtering-for-10-years",
+    "href": "cdcdata-exercise/cdcdata.html#filtering-for-10-years",
+    "title": "Data Analysis Exercise",
+    "section": "Filtering for 10 years",
+    "text": "Filtering for 10 years\n\nbot_10years = bot %&gt;% \n  filter(Year %in% 2008:2017,\n         !is.na(State))\n\n\nNew Data Structure\nWe now have 494 observations and 5 variables.\n\nstr(bot_10years)\n\n'data.frame':   494 obs. of  5 variables:\n $ State    : chr  \"Alaska\" \"Alaska\" \"Alaska\" \"Alaska\" ...\n $ Year     : int  2008 2008 2009 2010 2010 2010 2011 2012 2013 2014 ...\n $ BotType  : chr  \"Foodborne\" \"Foodborne\" \"Infant\" \"Foodborne\" ...\n $ ToxinType: chr  \"E\" \"Unknown\" \"A\" \"B\" ...\n $ Count    : int  6 2 1 2 2 1 5 3 1 7 ...\n\n\n\n\nNew Data Summary\n\nsummary(bot_10years)\n\n    State                Year        BotType           ToxinType        \n Length:494         Min.   :2008   Length:494         Length:494        \n Class :character   1st Qu.:2010   Class :character   Class :character  \n Mode  :character   Median :2013   Mode  :character   Mode  :character  \n                    Mean   :2013                                        \n                    3rd Qu.:2015                                        \n                    Max.   :2017                                        \n     Count       \n Min.   : 1.000  \n 1st Qu.: 1.000  \n Median : 1.000  \n Mean   : 3.178  \n 3rd Qu.: 3.000  \n Max.   :35.000"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#grouping-by-year",
+    "href": "cdcdata-exercise/cdcdata.html#grouping-by-year",
+    "title": "Data Analysis Exercise",
+    "section": "Grouping by Year",
+    "text": "Grouping by Year\nThis code groups the data by year to visualize the total number of confirmed cases each year and determine which year had the highest occurrences of Botulism.\n\ngroup_year = bot_10years %&gt;% \n  group_by(Year) %&gt;%\n  summarize(total_cases = sum(Count)) %&gt;% \n  mutate(percentage_of_total = round((total_cases / sum(total_cases)) * 100, 2))\n\ngroup_year\n\n# A tibble: 10 × 3\n    Year total_cases percentage_of_total\n   &lt;int&gt;       &lt;int&gt;               &lt;dbl&gt;\n 1  2008         150                9.55\n 2  2009         122                7.77\n 3  2010         111                7.07\n 4  2011         135                8.6 \n 5  2012         155                9.87\n 6  2013         154                9.81\n 7  2014         158               10.1 \n 8  2015         199               12.7 \n 9  2016         205               13.1 \n10  2017         181               11.5"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#grouping-by-state",
+    "href": "cdcdata-exercise/cdcdata.html#grouping-by-state",
+    "title": "Data Analysis Exercise",
+    "section": "Grouping by State",
+    "text": "Grouping by State\nSimilarly to the previous code, we are grouping by state to determine which state had the highest occurrence of Botulism.\n\ngroup_state = bot_10years %&gt;% \n  group_by(State) %&gt;%\n  filter(!is.na(State)) %&gt;% #Removing NAs\n  summarize(total_cases = sum(Count)) %&gt;% #adding all the counts of confirmed cases by state\n  arrange(desc(total_cases))  %&gt;% \n  mutate(percentage_of_total = round((total_cases / sum(total_cases)) * 100, 2))\n\nhead(group_state) #getting top 6 states\n\n# A tibble: 6 × 3\n  State        total_cases percentage_of_total\n  &lt;chr&gt;              &lt;int&gt;               &lt;dbl&gt;\n1 California           545               34.7 \n2 Pennsylvania         153                9.75\n3 New Jersey            76                4.84\n4 Ohio                  76                4.84\n5 Texas                 71                4.52\n6 Maryland              55                3.5"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#grouping-by-botulism-transmission-type",
+    "href": "cdcdata-exercise/cdcdata.html#grouping-by-botulism-transmission-type",
+    "title": "Data Analysis Exercise",
+    "section": "Grouping by Botulism Transmission Type",
+    "text": "Grouping by Botulism Transmission Type\nLastly, we want to identify the most common transmission type for this disease.\n\ngroup_trans = bot_10years %&gt;% \n  group_by(BotType) %&gt;%\n  summarize(total_cases = sum(Count)) %&gt;% \n  arrange(desc(total_cases))  %&gt;% \n  mutate(percentage_of_total = round((total_cases / sum(total_cases)) * 100, 2))\n\ngroup_trans\n\n# A tibble: 4 × 3\n  BotType   total_cases percentage_of_total\n  &lt;chr&gt;           &lt;int&gt;               &lt;dbl&gt;\n1 Infant           1183               75.4 \n2 Foodborne         185               11.8 \n3 Wound             174               11.1 \n4 Other              28                1.78"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#botulism-by-year",
+    "href": "cdcdata-exercise/cdcdata.html#botulism-by-year",
+    "title": "Data Analysis Exercise",
+    "section": "Botulism by Year",
+    "text": "Botulism by Year\nThis line chart illustrates a rising trend in Botulism cases beginning from 2010, which marked the lowest point on the graph (113 cases). The peak occurred in 2016, with 206 confirmed cases. Next, we will examine the states with the highest impact in the following chart.\n\nggplot(group_year, aes(x = Year, y = total_cases)) +\n  geom_bar(stat = \"identity\", fill = \"skyblue\") +\n  labs(title = \"Botulism Cases by Year\", y = \"# of Confirmed Cases\") +\n  theme_minimal() +\n  scale_x_continuous(breaks = unique(group_year$Year))"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#botulism-by-state",
+    "href": "cdcdata-exercise/cdcdata.html#botulism-by-state",
+    "title": "Data Analysis Exercise",
+    "section": "Botulism by State",
+    "text": "Botulism by State\nCalifornia stands out as the state with the highest number of confirmed Botulism cases, totaling 545, which accounts for more than half (56%) of all cases. This highlights California’s significant impact on the overall number of confirmed cases.\n\nggplot(group_state, aes(reorder(x = State, desc(total_cases)), y = total_cases)) +\n  geom_col(fill = \"skyblue\") +\n  labs(title = \"Botulism Cases by State\", x = \"State\", y = \"# of Confirmed Cases\") +\n  theme_minimal() +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1))\n\n\n\n  #scale_x_continuous(breaks = unique(group_year$Year))"
+  },
+  {
+    "objectID": "cdcdata-exercise/cdcdata.html#botulism-by-transmission-type",
+    "href": "cdcdata-exercise/cdcdata.html#botulism-by-transmission-type",
+    "title": "Data Analysis Exercise",
+    "section": "Botulism by Transmission Type",
+    "text": "Botulism by Transmission Type\nIn the last 10 years, infants have accounted for the highest proportion of transmissions, comprising 76% of all cases.\n\nggplot(group_trans, aes(x = BotType, y = total_cases)) +\n  geom_bar(stat = \"identity\", fill = \"skyblue\") +\n  labs(title = \"Botulism Cases by Transmission Type\", y = \"# of Confirmed Cases\") +\n  theme_minimal()\n\n\n\n  #scale_x_continuous(breaks = unique(group_year$Year))"
+  },
+  {
     "objectID": "coding-exercise/coding-exercise.html",
     "href": "coding-exercise/coding-exercise.html",
     "title": "R Coding Exercise",
