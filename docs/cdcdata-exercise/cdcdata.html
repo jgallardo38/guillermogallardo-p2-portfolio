@@ -407,6 +407,110 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#scale_x_continuous(breaks = unique(group_year$Year))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="this-section-contributed-by-benjamin-farias-qnv639" class="level2">
+<h2 class="anchored" data-anchor-id="this-section-contributed-by-benjamin-farias-qnv639">This section contributed by Benjamin Farias (QNV639)</h2>
+<p>Creating Synthetic data based on the values from the above exploration. The prompt used is below. “Write R code that will create synthetic data for cases of botulism by state in the years 2008 to 2017. Make sure to include add 50 states. The columns of the dataset are state, year, and transmission type. For each state, create rows where, on average the 75% of transmission type are Infant, 12% are foodborne, 11% are wound, and 2% are other. 35% of cases are in California, 10% Pennsylvania, 5% New Jersey, 5% Ohio, 5% Texas, 4% Maryland, and the rest distributed among the remaining states.”</p>
+<p>The code was slightly modified to fix minimal errors generate by AI.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>years <span class="ot">&lt;-</span> <span class="dv">2008</span><span class="sc">:</span><span class="dv">2017</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>states <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Alabama"</span>, <span class="st">"Alaska"</span>, <span class="st">"Arizona"</span>, <span class="st">"Arkansas"</span>, <span class="st">"California"</span>, </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Colorado"</span>, <span class="st">"Connecticut"</span>, <span class="st">"Delaware"</span>, <span class="st">"Florida"</span>, <span class="st">"Georgia"</span>, </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Hawaii"</span>, <span class="st">"Idaho"</span>, <span class="st">"Illinois"</span>, <span class="st">"Indiana"</span>, <span class="st">"Iowa"</span>, <span class="st">"Kansas"</span>, </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Kentucky"</span>, <span class="st">"Louisiana"</span>, <span class="st">"Maine"</span>, <span class="st">"Maryland"</span>, <span class="st">"Massachusetts"</span>, </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Michigan"</span>, <span class="st">"Minnesota"</span>, <span class="st">"Mississippi"</span>, <span class="st">"Missouri"</span>, <span class="st">"Montana"</span>, </span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Nebraska"</span>, <span class="st">"Nevada"</span>, <span class="st">"New Hampshire"</span>, <span class="st">"New Jersey"</span>, <span class="st">"New Mexico"</span>, </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"New York"</span>, <span class="st">"North Carolina"</span>, <span class="st">"North Dakota"</span>, <span class="st">"Ohio"</span>, <span class="st">"Oklahoma"</span>, </span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Oregon"</span>, <span class="st">"Pennsylvania"</span>, <span class="st">"Rhode Island"</span>, <span class="st">"South Carolina"</span>, </span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"South Dakota"</span>, <span class="st">"Tennessee"</span>, <span class="st">"Texas"</span>, <span class="st">"Utah"</span>, <span class="st">"Vermont"</span>, <span class="st">"Virginia"</span>, </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Washington"</span>, <span class="st">"West Virginia"</span>, <span class="st">"Wisconsin"</span>, <span class="st">"Wyoming"</span>)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize empty dataframe to store data</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>botulism_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">state =</span> <span class="fu">character</span>(),</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">year =</span> <span class="fu">integer</span>(),</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                            <span class="at">transmission_type =</span> <span class="fu">character</span>(),</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>                            <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define transmission type proportions</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>transmission_proportions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">Infant =</span> <span class="fl">0.75</span>, <span class="at">Foodborne =</span> <span class="fl">0.12</span>, <span class="at">Wound =</span> <span class="fl">0.11</span>, <span class="at">Other =</span> <span class="fl">0.02</span>)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Define state proportions</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>state_proportions <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">California =</span> <span class="fl">0.35</span>, <span class="at">Pennsylvania =</span> <span class="fl">0.10</span>, <span class="st">"New Jersey"</span> <span class="ot">=</span> <span class="fl">0.05</span>, </span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>                       <span class="at">Ohio =</span> <span class="fl">0.05</span>, <span class="at">Texas =</span> <span class="fl">0.05</span>, <span class="at">Maryland =</span> <span class="fl">0.04</span>)</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>other_states_proportion <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>(state_proportions)) <span class="sc">/</span> (<span class="dv">50</span> <span class="sc">-</span> <span class="fu">length</span>(state_proportions))</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate data for each state and year</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (year <span class="cf">in</span> years) {</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (state <span class="cf">in</span> states) {</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Determine number of cases for the current state and year</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (state <span class="sc">%in%</span> <span class="fu">names</span>(state_proportions)) {</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>      cases <span class="ot">&lt;-</span> <span class="fu">round</span>(state_proportions[state] <span class="sc">*</span> <span class="dv">100</span>)  <span class="co"># Assuming 100 cases per state per year</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>      cases <span class="ot">&lt;-</span> <span class="fu">round</span>(other_states_proportion <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sample transmission types based on proportions</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    transmission_types <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">names</span>(transmission_proportions), cases, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> transmission_proportions)</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create dataframe with state, year, and transmission type</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    botulism_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(botulism_data, <span class="fu">data.frame</span>(<span class="at">state =</span> <span class="fu">rep</span>(state, cases),</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>                                                     <span class="at">year =</span> <span class="fu">rep</span>(year, cases),</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>                                                     <span class="at">transmission_type =</span> transmission_types))</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a><span class="co"># View the first few rows of the generated dataset</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(botulism_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       state year transmission_type
+1    Alabama 2008            Infant
+2     Alaska 2008            Infant
+3    Arizona 2008            Infant
+4   Arkansas 2008             Wound
+5 California 2008            Infant
+6 California 2008            Infant</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>botulism_data <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(state) <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">total =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percentage_of_total =</span> <span class="fu">round</span>((total <span class="sc">/</span> <span class="fu">sum</span>(total)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(percentage_of_total))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50 × 3
+   state        total percentage_of_total
+   &lt;chr&gt;        &lt;int&gt;               &lt;dbl&gt;
+ 1 California     350               32.4 
+ 2 Pennsylvania   100                9.26
+ 3 New Jersey      50                4.63
+ 4 Ohio            50                4.63
+ 5 Texas           50                4.63
+ 6 Maryland        40                3.7 
+ 7 Alabama         10                0.93
+ 8 Alaska          10                0.93
+ 9 Arizona         10                0.93
+10 Arkansas        10                0.93
+# ℹ 40 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>botulism_data <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(transmission_type) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">total =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percentage_of_total =</span> <span class="fu">round</span>((total <span class="sc">/</span> <span class="fu">sum</span>(total)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(percentage_of_total))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  transmission_type total percentage_of_total
+  &lt;chr&gt;             &lt;int&gt;               &lt;dbl&gt;
+1 Infant              808               74.8 
+2 Foodborne           130               12.0 
+3 Wound               118               10.9 
+4 Other                24                2.22</code></pre>
+</div>
+</div>
+<p>The data is relatively similar to that of the original data, however the original data is already summarized, and this data has 1 row per case.</p>
 
 
 </section>
