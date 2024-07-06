@@ -6,7 +6,7 @@ For this exercise, I explored charts and data from the 538 website. Among severa
 
 I utilized **ChatGPT** to recreate the chart based on a specific prompt. I uploaded the original file from the 538 website and also attached a screenshot of the plot to aid in the recreation process. For more details on the prompts used and the complexity involved in recreating the chart, please refer to the Plotting section where I delve deeper into these aspects.
 
-The original plot can be found in this [**link**](https://projects.fivethirtyeight.com/clinton-trump-hip-hop-lyrics/)**.**
+### The original plot can be found in this [**link**](https://projects.fivethirtyeight.com/clinton-trump-hip-hop-lyrics/)**.**
 
 # Loading Libraries
 
