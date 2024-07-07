@@ -59,7 +59,7 @@ The starting prompt is included below. It took more prompts to complete the char
 
 *Could you use highcharter in R to replicate a chart similar to the one attached, depicting a point for every mention of a candidate in a song line from this dataset? Below is the code I've developed to preprocess the data for this purpose.*
 
-*data1 \<- data %\>%* *group_by(album_release_date, candidate) %\>%* *mutate(mention_id = row_number())*
+*candidate_num \<- candidates %\>%* *group_by(album_release_date, candidate) %\>%* *mutate(mention_id = row_number())*
 
 ## Initial Chart Code
 
@@ -216,6 +216,12 @@ candidate_table = candidate_summary %>%
 
 
 ## Sentiment by Candidate Table Code
+
+For this table, I requested ChatGPT to create a similar one to the above, but to use the "sentiment" column instead.
+
+**1st prompt** 
+*can you create a similar one but with the total count of positive, negative, and neutral mentions?*
+
 ```{r}
 # Provided data manipulation code
 candidate_sentiment = candidate_num %>%
