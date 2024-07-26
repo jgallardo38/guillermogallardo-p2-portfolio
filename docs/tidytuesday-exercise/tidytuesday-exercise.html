@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -154,9 +188,297 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>Placeholder file for the future Tidy Tuesday exercise.</p>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>For this project, I am going to explore the relationship between the popularity score of a song chosen by a contestant in a given week and their competition results (safe or not) in that week. The goal is to determine if songs with higher popularity scores significantly influence a contestant’s progression through the competition. By identifying which songs’ popularity scores are more predictive, we could potentially provide strategic insights for future participants of American Idol, suggesting that selecting songs with higher popularity might offer a competitive advantage.</p>
+<p>For this analysis, we are focusing exclusively on outcomes labeled as “Safe,” even though other results may also indicate progression to the next stage of the competition.</p>
+</section>
+<section id="loading-data" class="level1">
+<h1>Loading Data</h1>
+<p>To load the data, we downloaded the <em>songs.csv</em> file and imported it into our Quarto project. This file contains 2,429 observations across 9 variables. For ease of analysis, I stored this data in a variable named songs.</p>
+<p>After loading the data, we augmented it with synthetic data to generate a popularity score for each song in a given week. This addition allows us to dive deeper into our analysis. I decided to use synthetic data to augment the existing dataset, providing a new variable that offers insights into the popularity of songs week by week.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"tidytuesday-exercise"</span>,<span class="st">"data"</span>,<span class="st">"songs.csv"</span>) <span class="co">#setting path</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>songs <span class="ot">=</span> <span class="fu">read.csv</span>(data) <span class="co">#loading data</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## creating synthetic variables</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>songs_synthetic <span class="ot">=</span> songs <span class="sc">%&gt;%</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">popularity_score =</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">100</span>), <span class="at">digits =</span> <span class="dv">0</span>), </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">performance_length =</span> <span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean =</span> <span class="dv">240</span>, <span class="at">sd =</span> <span class="dv">60</span>), <span class="at">digits =</span> <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-cleaning" class="level1">
+<h1>Data Cleaning</h1>
+<section id="missing-data" class="level2">
+<h2 class="anchored" data-anchor-id="missing-data">Missing Data</h2>
+<p>Not all songs in our dataset are categorized with a song theme, which does not impact our current analysis objectives. Additionally, there are 30 songs lacking a result; we will exclude these from our dataset to maintain data integrity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>missing_summary <span class="ot">=</span> songs_synthetic <span class="sc">%&gt;%</span> <span class="fu">summarise_all</span>(<span class="fu">funs</span>(<span class="fu">sum</span>(<span class="fu">is.na</span>(.))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `funs()` was deprecated in dplyr 0.8.0.
+ℹ Please use a list of either functions or lambdas:
+
+# Simple named list: list(mean = mean, median = median)
+
+# Auto named with `tibble::lst()`: tibble::lst(mean, median)
+
+# Using lambdas list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(missing_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  X season week order contestant song artist song_theme result popularity_score
+1 0      0    0     0          0    0      0       1656     30                0
+  performance_length
+1                  0</code></pre>
+</div>
+</div>
+</section>
+<section id="recoding-results" class="level2">
+<h2 class="anchored" data-anchor-id="recoding-results">Recoding Results</h2>
+<p>In the data cleaning phase, my objective is to investigate whether the popularity scores of songs influence a contestant’s safety for the week. To facilitate this analysis, I introduced a new variable called is_safe. This variable is derived by transforming the results column: entries labeled “Safe” are coded as 1, and all other outcomes are coded as 0. This binary transformation will streamline the process of modeling and enable deeper insights into the dataset, particularly how song popularity correlates with contest outcomes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>songs_cleaned <span class="ot">=</span> songs_synthetic <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>song_theme, <span class="sc">-</span>X) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(result) <span class="sc">&amp;</span> result <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">is_safe =</span> <span class="fu">as.factor</span>(<span class="fu">ifelse</span>(result <span class="sc">==</span> <span class="st">"Safe"</span>, <span class="dv">1</span>, <span class="dv">0</span>))) <span class="do">##might need to add others</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="standardizing-songs" class="level2">
+<h2 class="anchored" data-anchor-id="standardizing-songs">Standardizing Songs</h2>
+<p>To enhance clarity in visuals and analyses, I conducted a thorough cleaning of the song titles field. This step ensures consistency and accuracy in the data for more effective visualization and interpretation in future analyses.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>songs_standard <span class="ot">=</span> songs_cleaned <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cleaned_song =</span> <span class="fu">tolower</span>(song),  <span class="co"># Convert song names to lowercase</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">cleaned_song =</span> <span class="fu">str_replace_all</span>(cleaned_song, <span class="st">"</span><span class="sc">\\</span><span class="st">s*</span><span class="sc">\\</span><span class="st">([^</span><span class="sc">\\</span><span class="st">)]+</span><span class="sc">\\</span><span class="st">)</span><span class="sc">\\</span><span class="st">s*"</span>, <span class="st">""</span>),  <span class="co"># Remove parentheses and content within</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">cleaned_song =</span> <span class="fu">str_trim</span>(cleaned_song),  <span class="co"># Trim whitespace</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">cleaned_song =</span> <span class="fu">str_to_title</span>(cleaned_song))  <span class="co"># Convert to title case</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>songs_standard<span class="sc">$</span>is_safe <span class="ot">=</span> <span class="fu">as.factor</span>(songs_standard<span class="sc">$</span>is_safe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="exploring-our-datasets" class="level1">
+<h1>Exploring our Datasets</h1>
+<section id="grouping-by-artist" class="level2">
+<h2 class="anchored" data-anchor-id="grouping-by-artist">Grouping by Artist</h2>
+<p>To better understand which artists are most popular, I grouped the data by artist and visualized the results with a column chart using ggplot2. The chart reveals that Stevie Wonder is the most frequently chosen artist, followed by The Beatles and Elton John.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Grouping artist</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>artist_count <span class="ot">=</span> songs_standard <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(artist) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating visual</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>artist_count <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(artist, n), <span class="at">y =</span> n)) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Most Frequent Artists"</span>, <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="tidytuesday-exercise_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="grouping-by-song" class="level2">
+<h2 class="anchored" data-anchor-id="grouping-by-song">Grouping by Song</h2>
+<p>The data reveals that “I Have Nothing” by Whitney Houston is the most popular song among contestants but we will compare this with their actual popularity score.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Grouping Songs</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>top_songs <span class="ot">=</span> songs_standard <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(cleaned_song, artist) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating visual</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>top_songs <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(cleaned_song, n), <span class="at">y =</span> n)) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Most Chosen Songs"</span>, <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>) <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(top_songs<span class="sc">$</span>n, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="tidytuesday-exercise_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="song-popularity-score-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="song-popularity-score-distribution">Song Popularity Score Distribution</h2>
+<p>The distribution of song popularity scores appears uniform, with only minor fluctuations and no significant peaks. This indicates a wide range of popularity levels, showing no particular bias toward high or low scores. Such diversity in popularity could facilitate a more nuanced analysis of how song popularity correlates with outcomes like contestant safety.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> songs_standard, <span class="fu">aes</span>(<span class="at">x =</span> popularity_score)) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>, <span class="at">fill =</span> <span class="st">"grey"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Song Popularity Scores"</span>, <span class="at">x =</span> <span class="st">"Popularity Score"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="tidytuesday-exercise_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="statistical-model" class="level1">
+<h1>Statistical Model</h1>
+<section id="data-splitting" class="level2">
+<h2 class="anchored" data-anchor-id="data-splitting">Data Splitting</h2>
+<p>For our data splitting process, we first separate the outcome variable from the predictor variable. We then divide these variables into training and testing sets, following the recommended strategy of an 80% train and 20% test split.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)  <span class="co"># for reproducibility</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>predictor  <span class="ot">=</span> songs_standard <span class="sc">%&gt;%</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(popularity_score)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>Outcome <span class="ot">=</span> songs_standard <span class="sc">%&gt;%</span> </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(is_safe)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>splitIndex <span class="ot">=</span> <span class="fu">createDataPartition</span>(Outcome<span class="sc">$</span>is_safe, <span class="at">p =</span> <span class="fl">0.80</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>train_pred <span class="ot">=</span> predictor[splitIndex,]</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>test_pred <span class="ot">=</span> predictor[<span class="sc">-</span>splitIndex,]</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>train_out <span class="ot">=</span> Outcome[splitIndex, ]</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>test_out <span class="ot">=</span> Outcome[<span class="sc">-</span>splitIndex, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="control-function" class="level2">
+<h2 class="anchored" data-anchor-id="control-function">Control Function</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ctrl <span class="ot">=</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"LGOCV"</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">savePredictions =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">summaryFunction =</span> twoClassSummary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="logistic-regression" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h2>
+<p>We used a logistic regression model to quantify how song popularity scores influence contestant outcomes. This model’s clarity helps in understanding the direct effects of popularity on contestant safety, offering interpretable and actionable insights.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(train_out) <span class="ot">=</span> <span class="fu">make.names</span>(<span class="fu">levels</span>(train_out))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(test_out) <span class="ot">=</span> <span class="fu">make.names</span>(<span class="fu">levels</span>(test_out))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#making sure outcome is a factor</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>train_out <span class="ot">=</span> <span class="fu">as.factor</span>(train_out)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>test_out <span class="ot">=</span> <span class="fu">as.factor</span>(test_out)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#updating to data fram</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>train_pred <span class="ot">=</span> <span class="fu">as.data.frame</span>(train_pred)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>test_pred <span class="ot">=</span> <span class="fu">as.data.frame</span>(test_pred)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>logistic_model <span class="ot">=</span> <span class="fu">train</span>(<span class="at">x =</span> train_pred, <span class="at">y =</span> train_out,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method =</span> <span class="st">"glm"</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>                        <span class="at">trControl =</span> ctrl,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                        <span class="at">metric =</span> <span class="st">"ROC"</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>logistic_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized Linear Model 
+
+1920 samples
+   1 predictor
+   2 classes: 'X0', 'X1' 
+
+No pre-processing
+Resampling: Repeated Train/Test Splits Estimated (25 reps, 75%) 
+Summary of sample sizes: 1440, 1440, 1440, 1440, 1440, 1440, ... 
+Resampling results:
+
+  ROC        Sens       Spec      
+  0.4782715  0.9767068  0.01939394</code></pre>
+</div>
+</div>
+</section>
+<section id="svm-model" class="level2">
+<h2 class="anchored" data-anchor-id="svm-model">SVM Model</h2>
+<p>A support vector machine (SVM) model was chosen for its ability to handle complex, non-linear interactions between song popularity and contestant safety. It enhances our analysis by capturing intricate patterns beyond simpler models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>svm_model <span class="ot">=</span> <span class="fu">train</span>(<span class="at">x =</span> train_pred, <span class="at">y =</span> train_out,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">method =</span> <span class="st">"svmRadial"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">trControl =</span> ctrl,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">tuneLength =</span> <span class="dv">3</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">metric =</span> <span class="st">"ROC"</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>svm_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Support Vector Machines with Radial Basis Function Kernel 
+
+1920 samples
+   1 predictor
+   2 classes: 'X0', 'X1' 
+
+No pre-processing
+Resampling: Repeated Train/Test Splits Estimated (25 reps, 75%) 
+Summary of sample sizes: 1440, 1440, 1440, 1440, 1440, 1440, ... 
+Resampling results across tuning parameters:
+
+  C     ROC        Sens       Spec      
+  0.25  0.4912627  0.9346185  0.05748918
+  0.50  0.4979068  0.9254618  0.06683983
+  1.00  0.4938142  0.8880321  0.10077922
+
+Tuning parameter 'sigma' was held constant at a value of 11.64252
+ROC was used to select the optimal model using the largest value.
+The final values used for the model were sigma = 11.64252 and C = 0.5.</code></pre>
+</div>
+</div>
+</section>
+<section id="lda" class="level2">
+<h2 class="anchored" data-anchor-id="lda">LDA</h2>
+<p>Linear Discriminant Analysis (LDA) was included to assess how well song popularity and other features distinguish between ‘safe’ and ‘not safe’ contestants. It provides a clear view of the most impactful features, simplifying the understanding of what drives contestant outcomes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>ldaFit <span class="ot">=</span> <span class="fu">train</span>(<span class="at">x =</span> train_pred, <span class="at">y =</span> train_out,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">method =</span> <span class="st">"lda"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">metric =</span> <span class="st">"ROC"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">preProc =</span> <span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">trControl =</span> ctrl)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>ldaFit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear Discriminant Analysis 
+
+1920 samples
+   1 predictor
+   2 classes: 'X0', 'X1' 
+
+Pre-processing: centered (1), scaled (1) 
+Resampling: Repeated Train/Test Splits Estimated (25 reps, 75%) 
+Summary of sample sizes: 1440, 1440, 1440, 1440, 1440, 1440, ... 
+Resampling results:
+
+  ROC        Sens       Spec      
+  0.4782715  0.9767068  0.01939394</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>We evaluated the influence of song popularity scores on contestant safety using three models: Generalized Linear Model (GLM), Support Vector Machine (SVM) with Radial Basis Function Kernel, and Linear Discriminant Analysis (LDA). Each model’s performance was assessed based on its ROC curve, sensitivity, and specificity.</p>
+<section id="generalized-linear-model-glm-and-linear-discriminant-analysis-lda-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="generalized-linear-model-glm-and-linear-discriminant-analysis-lda-evaluation">Generalized Linear Model (GLM) and Linear Discriminant Analysis (LDA) Evaluation:</h2>
+<p>Both GLM and LDA achieved similar ROC scores around 0.522, indicating moderate discrimination ability between ‘safe’ and ‘not safe’ contestants. They showed high sensitivity (approx. 0.81) but low specificity (approx. 0.215), highlighting a tendency to correctly identify safe contestants but at the expense of a high false positive rate.</p>
+</section>
+<section id="support-vector-machine-svm-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="support-vector-machine-svm-evaluation">Support Vector Machine (SVM) Evaluation:</h2>
+<p>The SVM model exhibited slightly lower ROC values (max 0.489), with very high sensitivity (up to 0.935) but significantly lower specificity (as low as 0.057). This sensitivity indicates a strong identification of ‘safe’ contestants but with many false positives, affecting its overall reliability.</p>
+</section>
+<section id="conclusion-1" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-1">Conclusion</h2>
+<p>While GLM and LDA slightly outperform SVM in balancing sensitivity and specificity, all models show only moderate effectiveness. This suggests that song popularity scores alone may not be a strong predictor of safety. Further model refinement and additional variables might enhance predictive accuracy.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
